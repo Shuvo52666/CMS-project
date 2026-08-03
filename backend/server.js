@@ -7,6 +7,9 @@ import dotenv from "dotenv";
 import path from "path";
 import {fileURLToPath} from "url";
 
+import frontend from "./routes/frontend.js"
+import admin from "./routes/admin.js"
+
 dotenv.config();
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -16,15 +19,22 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,"public")))
 app.use(expressLayouts);
-app.set('layout','layout');
+app.set('layout','layout'); //set default value
 app.set("view engine","ejs");
 
 connectDB();
 
+// api routes
+app.use("/",frontend);
 
-app.get("/",(req,res)=>{
-    res.send("hello world");
+//for override layout
+app.use('/admin',(req,res,next)=>{
+    res.locals.layout = "admin/layout";
+    next();
 })
+//
+
+app.use("/admin",admin)
 
 app.listen(process.env.PORT,()=>{
     console.log("server is running on port 3000");
