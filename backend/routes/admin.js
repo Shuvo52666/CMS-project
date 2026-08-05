@@ -20,7 +20,7 @@ router.get('/addUser',userController.addUserPage);
 router.post('/addUser',userController.addUser);
 router.get('/updateUser/:id',userController.updateUserPage);
 router.post('/updateUser/:id',userController.updateUser);
-router.get('/deleteUser/:id',userController.deleteUser);
+router.delete('/deleteUser/:id',userController.deleteUser);
 
 //category crud route
 router.get('/category',categoryController.allCategory);
@@ -28,7 +28,7 @@ router.get('/addCategory',categoryController.addCategoryPage);
 router.post('/addCategory',categoryController.addCategory);
 router.get('/updateCategory/:id',categoryController.updateCategoryPage);
 router.post('/updateCategory/:id',categoryController.updateCategory);
-router.get('/deleteCategory/:id',categoryController.deleteCategory);
+router.delete('/deleteCategory/:id',categoryController.deleteCategory);
 
 //Article crud route
 router.get('/article',articleController.allArticle);
@@ -36,7 +36,7 @@ router.get('/addArticle',articleController.addArticlePage);
 router.post('/addArticle',articleController.addArticle);
 router.get('/updateArticle/:id',articleController.updateArticlePage);
 router.post('/updateArticle/:id',articleController.updateArticle);
-router.get('/deleteArticle/:id',articleController.deleteArticle);
+router.delete('/deleteArticle/:id',articleController.deleteArticle);
 
 //comments route
 router.get('/comments',commentController.allComments);

@@ -23,12 +23,20 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-UserSchema.pre('save',async (next)=>{
-    if(this.isModified('password')){
+// UserSchema.pre('save',async function(next){ arow function do not have (this) so here need to use function
+//     if(this.isModified('password')){
+//         this.password = await bcrypt.hash(this.password,12);
+//     }
+//     next(); next is not a function for async
+// })
+UserSchema.pre("save",async function(next){ 
+
+        if(!this.isModified('password')){
+            return;
+        }
         this.password = await bcrypt.hash(this.password,12);
-    }
-    next();
 })
+
 
 const User = mongoose.model('users',UserSchema);
 export default User

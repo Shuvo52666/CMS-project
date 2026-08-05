@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="/css/font-awesome.css">
     <!-- Custom stlylesheet -->
     <link rel="stylesheet" href="/css/style.css">
-  </head>
+
+       <%- typeof tabulatorCSS == 'undefined' ? '' : tabulatorCSS %>
+</head>
   <body>
     <!-- HEADER -->
     <div id="header-admin">
@@ -80,4 +82,6 @@
 </div>
 <!-- /Footer -->
 </body>
+
+
 </html>

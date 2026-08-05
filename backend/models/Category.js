@@ -22,7 +22,7 @@ const CategorySchema = new mongoose.Schema({
 
 });
 
-CategorySchema.pre('save',(next)=>{
+CategorySchema.pre('save',function(next){
     this.slug = slugify(this.name,{lower:true});
     next();
 })
