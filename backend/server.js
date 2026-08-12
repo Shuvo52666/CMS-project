@@ -6,6 +6,7 @@ import connectDB from "./config/database.js";
 import dotenv from "dotenv";
 import path from "path";
 import {fileURLToPath} from "url";
+import cookieParser from "cookie-parser";
 
 import frontend from "./routes/frontend.js"
 import admin from "./routes/admin.js"
@@ -18,6 +19,7 @@ const __dirname = path.dirname(__filename);
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,"public")))
+app.use(cookieParser());
 app.use(expressLayouts);
 app.set('layout','layout'); //set default value
 app.set("view engine","ejs");
