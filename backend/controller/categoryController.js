@@ -21,9 +21,30 @@ const addCategory = async (req,res)=>{
     }
 }
 const updateCategoryPage = async (req,res)=>{
-    res.render('admin/categories/update',{role:req.role})
+    const id = req.params.id;
+    try {
+        const category = await Category.findById(id);
+        if(!category){
+            return res.status(404).send("category not found");
+        }
+        // console.log(category);
+        res.render('admin/categories/update',{category,role:req.role})
+    } catch (error) {
+        res.status(500).send("internal server error");
+    }
 }
-const updateCategory = async (req,res)=>{}
+const updateCategory = async (req,res)=>{
+    const id = req.params.id;
+    try {
+        const category = await Category.findByIdAndUpdate(id,req.body);
+        if(!category){
+            return res.status(404).send("category not found");
+        }
+        res.redirect("/admin/category")
+    } catch (error) {
+        res.status(500).send("internal server error");
+    }
+}
 const deleteCategory = async (req,res)=>{
     const id = req.params.id
     try {
