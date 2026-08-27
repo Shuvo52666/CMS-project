@@ -5,6 +5,7 @@ import articleController from "../controller/articleController.js";
 import commentController from "../controller/commentController.js";
 import isLoggedIn from "../middleware/auth.js";
 import isAdmin from "../middleware/isAdmin.js";
+import upload from "../middleware/multer.js";
 
 const router = express.Router();
 
@@ -34,9 +35,9 @@ router.delete('/deleteCategory/:id',isLoggedIn,isAdmin, categoryController.delet
 //Article crud route
 router.get('/article',isLoggedIn, articleController.allArticle);
 router.get('/addArticle',isLoggedIn, articleController.addArticlePage);
-router.post('/addArticle',isLoggedIn, articleController.addArticle);
+router.post('/addArticle',isLoggedIn,upload.single("image"),articleController.addArticle); //the value of single will be the input field name
 router.get('/updateArticle/:id',isLoggedIn, articleController.updateArticlePage);
-router.post('/updateArticle/:id',isLoggedIn, articleController.updateArticle);
+router.post('/updateArticle/:id',isLoggedIn,upload.single("image"), articleController.updateArticle);
 router.delete('/deleteArticle/:id',isLoggedIn, articleController.deleteArticle);
 
 //comments route

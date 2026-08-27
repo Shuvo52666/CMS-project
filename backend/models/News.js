@@ -12,12 +12,12 @@ const NewsSchema = new mongoose.Schema({
     },
     category:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Category',
+        ref:'categories',//ref will be the model name of the collection of category schema
         required:true
     },
     author:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
+        ref:'users',//ref will be the model name of the collection of user schema
         required:true
     },
     image:{

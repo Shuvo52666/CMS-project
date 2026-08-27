@@ -2,8 +2,8 @@ import Category from "../models/Category.js"
 
 
 const allCategory = async (req,res)=>{
-    const category = await Category.find();
     try {
+    const category = await Category.find();
         res.render('admin/categories/index',{category,role:req.role})
     } catch (error) {
         res.status(400).send(error);

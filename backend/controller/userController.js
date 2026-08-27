@@ -30,10 +30,10 @@ const adminlogin = async (req,res)=>{
             role:user.role
         };
 
-        const accessToken = jwt.sign(jwtData,process.env.JWT_SECRET,{expiresIn:'1h'});
+        const accessToken = jwt.sign(jwtData,process.env.JWT_SECRET,{expiresIn:'5h'});
         res.cookie('token',accessToken,{
             httpOnly:true,
-            maxAge:60*60*1000,
+            maxAge:5*60*60*1000,
         })
 
         res.redirect('/admin/dashboard');
