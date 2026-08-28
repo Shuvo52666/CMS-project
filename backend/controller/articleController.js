@@ -3,6 +3,11 @@ import Category from "../models/Category.js"
 import User from "../models/User.js"
 import fs from "fs";
 import path from "path";
+import {fileURLToPath} from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const allArticle = async (req,res)=>{
     try {
@@ -86,7 +91,7 @@ const updateArticle = async (req,res)=>{
 
         if(req.role == "author"){
             // console.log(req.id); //article is not populated to is returns object id so we need to use _id
-            //  console.log(article.author.id);// we can use id when we have _id then it converts _id to id string
+             // console.log(article.author);// we can use id when we have _id then it converts _id to id string
             if(req.id != article.author._id){
                 return res.send("unauthorized action");
             }
@@ -96,6 +101,10 @@ const updateArticle = async (req,res)=>{
         article.content = content;
         article.category = category;
         if(req.file){
+            const filepath = path.join(__dirname,"../public/uploads",article.image);
+            fs.unlinkSync(filepath,(err)=>{
+                if(err) console.log("failed to delete image")
+            })
             article.image = req.file.filename;
         }
         await article.save();
@@ -117,12 +126,17 @@ const deleteArticle = async (req,res)=>{
                 return res.send("unauthorized action");
             }
         }
-        if(article.image){
-            const filepath = path.join("./public/uploads",article.image); // here path.join need actual path of folder
-            console.log(filepath)
-            fs.unlink(filepath,(err)=>{
-                if(err) console.log("failed to delete image");
-            })
+        if(article.image){ //path.join("./public/uploads",article.image); // here path.join need actual path of folder
+            try {
+                const filepath = path.join(__dirname,"../public/uploads",article.image); //here 1st it will ditect where am i working by dirname and then ../ up one folder then go public and then uploads and then join the upload folder
+                // console.log(filepath)
+                fs.unlinkSync(filepath,(err)=>{
+                    if(err) console.log("failed to delete image");
+                })
+            } catch (error) {
+                console.log(error);
+            }
+
         }
         await article.deleteOne();
 

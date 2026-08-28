@@ -14,7 +14,8 @@ router.get("/",userController.loginPage);
 router.post("/login",userController.adminlogin);
 router.get("/logout",userController.logout);
 router.get("/dashboard",isLoggedIn, userController.dashboard);
-router.get("/settings" ,isLoggedIn,isAdmin,userController.settings)
+router.get("/settings" ,isLoggedIn,isAdmin,userController.settings);
+router.post("/saveSettings",isLoggedIn,isAdmin,upload.single('website_logo'),userController.saveSettings)
 
 //user crud route
 router.get('/users',isLoggedIn,isAdmin, userController.allUser);

@@ -1,7 +1,16 @@
 import User from "../models/User.js"
+import News from "../models/News.js";
+import Category from "../models/Category.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import Settings from "../models/Settings.js";
+import {fileURLToPath} from "url";
+import path from "path";
+import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -49,10 +58,65 @@ const logout = async (req,res)=>{
     res.redirect('/admin')
 }
 const dashboard = async (req,res)=>{
-    res.render('admin/dashboard',{role:req.role, fullname:req.fullname});
+    try {
+        let articleCount
+        if(req.role === "author"){
+            //console.log(req.id);
+            articleCount = await News.countDocuments({author:req.id});
+        }else{
+            articleCount = await News.countDocuments();
+        }
+        const userCount = await User.countDocuments();
+        const categoryCount = await Category.countDocuments();
+        
+        res.render('admin/dashboard',{
+            role:req.role,
+            fullname:req.fullname,
+            articleCount,
+            userCount,
+            categoryCount
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("internal server error");
+    }
+    
 }
 const settings = async (req,res)=>{
-    res.render('admin/settings',{role:req.role});
+    const settings = await Settings.findOne();
+    res.render('admin/settings',{role:req.role,settings});
+}
+const saveSettings = async (req,res)=>{
+    const {website_title,footer_desc} = req.body;
+    const settings = await Settings.findOne();
+    let website_logo;
+    if(req.file){
+        const filepath = path.join(__dirname,"../public/uploads",settings.website_logo)
+        try {
+         fs.unlinkSync(filepath,(err)=>{
+            if(err) console.log("failed to delete image");
+        })           
+        } catch (error) {
+            console.log(error);
+        }
+        website_logo =req.file.filename;
+    }else{
+        website_logo = settings.website_logo;
+    }
+   
+
+    try {
+         await Settings.findOneAndUpdate(
+            {},
+            {website_title,website_logo,footer_desc},
+            {new:true,upsert:true}
+        )
+        res.redirect("/admin/settings")
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("internal server error");
+    }
 }
 
 const allUser = async (req,res)=>{
@@ -127,5 +191,6 @@ export default {
     updateUser,
     deleteUser,
     dashboard,
-    settings
+    settings,
+    saveSettings
 }
