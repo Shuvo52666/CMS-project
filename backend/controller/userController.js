@@ -19,7 +19,7 @@ const loginPage = async (req,res)=>{
         layout:false
     });
 }
-const adminlogin = async (req,res)=>{
+const adminlogin = async (req,res,next)=>{
     const {username,password}= req.body;
     try {
         const user = await User.findOne({username});
@@ -50,14 +50,15 @@ const adminlogin = async (req,res)=>{
 
 
     } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
+        next(error);
     }
 }
 const logout = async (req,res)=>{
     res.clearCookie('token');
     res.redirect('/admin')
 }
-const dashboard = async (req,res)=>{
+const dashboard = async (req,res,next)=>{
     try {
         let articleCount
         if(req.role === "author"){
@@ -78,8 +79,9 @@ const dashboard = async (req,res)=>{
         });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).send("internal server error");
+        // console.log(error);
+        // res.status(500).send("internal server error");
+        next(error);
     }
     
 }
@@ -87,7 +89,7 @@ const settings = async (req,res)=>{
     const settings = await Settings.findOne();
     res.render('admin/settings',{role:req.role,settings});
 }
-const saveSettings = async (req,res)=>{
+const saveSettings = async (req,res,next)=>{
     const {website_title,footer_desc} = req.body;
     const settings = await Settings.findOne();
     let website_logo;
@@ -114,8 +116,9 @@ const saveSettings = async (req,res)=>{
         )
         res.redirect("/admin/settings")
     } catch (error) {
-        console.log(error);
-        res.status(500).send("internal server error");
+        // console.log(error);
+        // res.status(500).send("internal server error");
+        next(error);
     }
 }
 
@@ -130,26 +133,29 @@ const addUser = async (req,res)=>{
     await User.create(req.body);
     res.redirect('/admin/users')
 }
-const updateUserPage = async (req,res)=>{
+const updateUserPage = async (req,res,next)=>{
     try{
         const id = req.params.id
         const user = await User.findById(id);
         // console.log(user);
         if(!user){
-            return res.status(404).send('user not found')
+            // return res.status(404).send('user not found')
+            return next(createError('user not found',404));
         }
         res.render('admin/users/update',{user,role:req.role});
     }catch(err){
-        console.error(err);
-        res.status(500).send("internal server error");
+        // console.error(err);
+        // res.status(500).send("internal server error");
+        next(error);
     }
 }
-const updateUser = async (req,res)=>{
+const updateUser = async (req,res,next)=>{
     const id = req.params.id;
     const {fullname,password,role} = req.body;
     try {
         const user = await User.findById(id);
         if(!user){
+            // return res.status(404).send("user not found");
             return res.status(404).send("user not found");
         }
         user.fullname = fullname || user.fullname;
@@ -162,21 +168,24 @@ const updateUser = async (req,res)=>{
 
         res.redirect('/admin/users');
     } catch (error) {
-        console.error(error);
-        res.status(500).send("internal server error");
+        // console.error(error);
+        // res.status(500).send("internal server error");
+        next(error);
     }
 }
-const deleteUser = async (req,res)=>{
+const deleteUser = async (req,res,next)=>{
     const id = req.params.id;
     try {
         const user = await User.findByIdAndDelete(id);
         if(!user){
-            return res.status(500).send("user not found");
+            // return res.status(500).send("user not found");
+            return res.status(404).send("user not found");
         }
         res.json({success:true})
     } catch (error) {
-        console.error(error);
-        res.status(500).send("internal server error");
+        // console.error(error);
+        // res.status(500).send("internal server error");
+        next(error);
     }
 }
 

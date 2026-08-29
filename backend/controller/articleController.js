@@ -4,12 +4,13 @@ import User from "../models/User.js"
 import fs from "fs";
 import path from "path";
 import {fileURLToPath} from "url";
+import createError from "../utils/error.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-const allArticle = async (req,res)=>{
+const allArticle = async (req,res,next)=>{
     try {
         let articles;
         if(req.role === "admin"){
@@ -24,24 +25,26 @@ const allArticle = async (req,res)=>{
         //    res.json(articles)
         res.render('admin/articles/index',{articles,role:req.role})
     } catch (error) {
-    console.error(error);
-    res.status(500).json({
-        message: error.message
-    });
+    // console.error(error);
+    // res.status(500).json({
+    //     message: error.message
+    // });
+    next(error);
 }
     
 
 }
-const addArticlePage = async (req,res)=>{
+const addArticlePage = async (req,res,next)=>{
     try {
         const categories = await Category.find();
         res.render('admin/articles/create',{categories,role:req.role})
         // console.log("hello")
     } catch (error) {
-        res.status(500).send(error);
+        // res.status(500).send(error);
+        next(error);
     }
 }
-const addArticle = async (req,res)=>{
+const addArticle = async (req,res,next)=>{
     const {title,content,category} = req.body;
     try {
         const article = new News({
@@ -54,17 +57,24 @@ const addArticle = async (req,res)=>{
         await article.save();
         res.redirect("/admin/article");
     } catch (error) {
-        res.status(500).send("article not saved");
+        // res.status(500).send("article not saved");
+        next(error);
     }
 }
-const updateArticlePage = async (req,res)=>{
+const updateArticlePage = async (req,res,next)=>{
     try {
         const id = req.params.id;
         const article = await News.findById(id)
                                             .populate('category','name')
                                             .populate('author','fullname');
         if(!article){
-            return res.status(404).send("article not found");
+            // return res.status(404).send("article not found");
+            // const error = new Error('article not found');
+            // error.status = 404;
+            // return next(error);
+
+            return next(createError('article not found',404));
+
         }
 
         if(req.role == "author"){
@@ -75,18 +85,20 @@ const updateArticlePage = async (req,res)=>{
         const categories = await Category.find();
         res.render('admin/articles/update',{role:req.role,categories,article});
     } catch (error) {
-        console.log(error);
-        res.status(500).send("internal server error");
+        // console.log(error);
+        // res.status(500).send("internal server error");
+        next(error);
     }
     
 }
-const updateArticle = async (req,res)=>{
+const updateArticle = async (req,res,next)=>{
     const id = req.params.id;
     try {
         const {title,content,category} = req.body;
         const article = await News.findById(id);
         if(!article){
-            return res.status(404).send("article not found");
+            // return res.status(404).send("article not found");
+            return next(createError('article not found',404));
         }
 
         if(req.role == "author"){
@@ -111,15 +123,17 @@ const updateArticle = async (req,res)=>{
         res.redirect("/admin/article");
 
     } catch (error) {
-        res.status(500).send(error);
+        // res.status(500).send(error);
+        next(error);
     }
 }
-const deleteArticle = async (req,res)=>{
+const deleteArticle = async (req,res,next)=>{
     const id = req.params.id;
     try{
         const article = await News.findById(id);
         if(!article){
-            return res.status(404).send("article not found");
+            // return res.status(404).send("article not found");
+            return next(createError('article not found',404));
         }
         if(req.role == "author"){
             if(req.id != article.author._id){
@@ -142,7 +156,8 @@ const deleteArticle = async (req,res)=>{
 
         res.json({success:true})
     }catch(error){
-        res.status(500).send("internal server error");
+        // res.status(500).send("internal server error");
+        next(error);
     }
      
 }

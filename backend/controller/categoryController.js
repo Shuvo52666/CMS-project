@@ -20,41 +20,47 @@ const addCategory = async (req,res)=>{
         res.status(400).send(error);
     }
 }
-const updateCategoryPage = async (req,res)=>{
+const updateCategoryPage = async (req,res,next)=>{
     const id = req.params.id;
     try {
         const category = await Category.findById(id);
         if(!category){
-            return res.status(404).send("category not found");
+            // return res.status(404).send("category not found");
+            return next(createError('category not found',404));
         }
         // console.log(category);
         res.render('admin/categories/update',{category,role:req.role})
     } catch (error) {
-        res.status(500).send("internal server error");
+        // res.status(500).send("internal server error");
+        next(error);
     }
 }
-const updateCategory = async (req,res)=>{
+const updateCategory = async (req,res,next)=>{
     const id = req.params.id;
     try {
         const category = await Category.findByIdAndUpdate(id,req.body);
         if(!category){
-            return res.status(404).send("category not found");
+            // return res.status(404).send("category not found");
+            return next(createError('category not found',404));
         }
         res.redirect("/admin/category")
     } catch (error) {
-        res.status(500).send("internal server error");
+        // res.status(500).send("internal server error");
+        next(error);
     }
 }
-const deleteCategory = async (req,res)=>{
+const deleteCategory = async (req,res,next)=>{
     const id = req.params.id
     try {
         const category = await Category.findByIdAndDelete(id)
         if(!category){
-            return res.status(404).send("user not found");
+            // return res.status(404).send("user not found");
+            return next(createError('category not found',404));
         }
         res.json({success:true})
     } catch (error) {
-        res.status(500).send("internal server error");
+        // res.status(500).send("internal server error");
+        next(error);
     }
 }
 
