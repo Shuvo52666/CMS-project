@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import {fileURLToPath} from "url";
 import createError from "../utils/error.js";
+import {validationResult} from 'express-validator'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,7 +38,7 @@ const allArticle = async (req,res,next)=>{
 const addArticlePage = async (req,res,next)=>{
     try {
         const categories = await Category.find();
-        res.render('admin/articles/create',{categories,role:req.role})
+        res.render('admin/articles/create',{categories,role:req.role,errors:0})
         // console.log("hello")
     } catch (error) {
         // res.status(500).send(error);
@@ -45,6 +46,15 @@ const addArticlePage = async (req,res,next)=>{
     }
 }
 const addArticle = async (req,res,next)=>{
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+        const categories = await Category.find()
+        return res.render('admin/articles/create',{
+            categories,
+            role:req.role,
+            errors:errors.array()
+        })
+    }
     const {title,content,category} = req.body;
     try {
         const article = new News({
@@ -83,7 +93,7 @@ const updateArticlePage = async (req,res,next)=>{
             }
         }
         const categories = await Category.find();
-        res.render('admin/articles/update',{role:req.role,categories,article});
+        res.render('admin/articles/update',{role:req.role,categories,article,errors:0});
     } catch (error) {
         // console.log(error);
         // res.status(500).send("internal server error");
@@ -93,6 +103,19 @@ const updateArticlePage = async (req,res,next)=>{
 }
 const updateArticle = async (req,res,next)=>{
     const id = req.params.id;
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+        const article = await News.findById(id)
+                                            .populate('category','name')
+                                            .populate('author','fullname');
+        const categories = await Category.find()
+        return res.render('admin/articles/update',{
+            article,
+            categories,
+            role:req.role,
+            errors:errors.array()
+        })
+    }
     try {
         const {title,content,category} = req.body;
         const article = await News.findById(id);
