@@ -207,11 +207,16 @@ const updateUser = async (req,res,next)=>{
 const deleteUser = async (req,res,next)=>{
     const id = req.params.id;
     try {
-        const user = await User.findByIdAndDelete(id);
+        const user = await User.findById(id);
         if(!user){
             // return res.status(500).send("user not found");
             return res.status(404).send("user not found");
         }
+        const article = await News.findOne({author:id})
+        if(article){
+            return res.status(400).json({success:false,message:'User is associated with an article'});
+        }
+        await user.deleteOne();
         res.json({success:true})
     } catch (error) {
         // console.error(error);

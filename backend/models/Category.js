@@ -24,7 +24,7 @@ const CategorySchema = new mongoose.Schema({
 
 CategorySchema.pre('validate',function(next){
     this.slug = slugify(this.name,{lower:true});
-        console.log(this.slug);
+        // console.log(this.slug);
     // next();
 
 })

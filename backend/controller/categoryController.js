@@ -1,4 +1,5 @@
 import Category from "../models/Category.js"
+import News from "../models/News.js";
 import createError from "../utils/error.js";
 import {validationResult} from 'express-validator'
 
@@ -57,11 +58,15 @@ const updateCategory = async (req,res,next)=>{
         })
     }
     try {
-        const category = await Category.findByIdAndUpdate(id,req.body);
+        const category = await Category.findById(id);
         if(!category){
             // return res.status(404).send("category not found");
             return next(createError('category not found',404));
         }
+        category.name = req.body.name;
+        category.description = req.body.description;
+
+        await category.save();
         res.redirect("/admin/category")
     } catch (error) {
         // res.status(500).send("internal server error");
@@ -71,11 +76,16 @@ const updateCategory = async (req,res,next)=>{
 const deleteCategory = async (req,res,next)=>{
     const id = req.params.id
     try {
-        const category = await Category.findByIdAndDelete(id)
+        const category = await Category.findById(id)
         if(!category){
             // return res.status(404).send("user not found");
             return next(createError('category not found',404));
         }
+        const article = await News.findOne({category:id})
+        if(article){
+            return res.status(400).json({success:false,message:'Category is associated with an article'});
+        }
+        await category.deleteOne()
         res.json({success:true})
     } catch (error) {
         // res.status(500).send("internal server error");
