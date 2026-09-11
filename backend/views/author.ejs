@@ -1,6 +1,7 @@
             <div class="post-container">
-              <h2 class="page-heading">Author Name</h2>
-                <div class="post-content">
+              <h2 class="page-heading">Author Name:<%= author.fullname%></h2>
+              <%- include('partials/loop.ejs')  %>
+                <!-- <div class="post-content">
                     <div class="row">
                         <div class="col-md-4">
                             <a class="post-img" href="single.html"><img src="images/post-format.jpg" alt=""/></a>
@@ -224,5 +225,5 @@
                       <a class="page-link" href="#">Next</a>
                     </li>
                   </ul>
-                </nav>
+                </nav> -->
             </div>
