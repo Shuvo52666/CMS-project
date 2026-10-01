@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Settings from "../models/Settings.js"
+
 import Category from "../models/Category.js"
 import Comment from "../models/Comment.js"
 import News from "../models/News.js"
@@ -10,10 +10,11 @@ const index = async (req,res)=>{
                                 .populate('category',{"name":1,"slug":1})
                                 .populate('author','fullname')
                                 .sort({createdAt:-1})
-
-    // res.json({articles,categoriesInUse,latestNews,settings})                            
+    const categoriesInUse = await News.distinct('category');
+    const categories = await Category.find({'_id':{$in:categoriesInUse}});
+    // res.json({articles,categoriesInUse})                            
     // res.json(news);                            
-    res.render('index.ejs',{articles});
+    res.render('index.ejs',{articles,categories});
 }
 const articleByCategories = async (req,res)=>{
     const category = await Category.findOne({slug:req.params.name});
@@ -24,18 +25,22 @@ const articleByCategories = async (req,res)=>{
                                 .populate('category',{"name":1,"slug":1})
                                 .populate('author','fullname')
                                 .sort({createdAt:-1})
+    const categoriesInUse = await News.distinct('category');
+    const categories = await Category.find({'_id':{$in:categoriesInUse}});
     // res.json({articles,categoriesInUse})                            
     // res.json(news);
-    res.render('category',{category,articles});
+    res.render('category',{category,articles,categories});
 }
 const singleArticle = async (req,res)=>{
     const article = await News.findOne({_id:req.params.id})
                                 .populate('category',{"name":1,"slug":1})
                                 .populate('author','fullname')
                                 .sort({createdAt:-1})
+    const categoriesInUse = await News.distinct('category');
+    const categories = await Category.find({'_id':{$in:categoriesInUse}});
     // res.json({articles,categoriesInUse})                            
     // res.json(news);
-    res.render('single',{article})
+    res.render('single',{article,categories})
 }
 const search = async (req,res)=>{
     const searchQuery = req.query.search;
@@ -48,9 +53,11 @@ const search = async (req,res)=>{
         .populate('category',{"name":1,"slug":1})
         .populate('author','fullname')
         .sort({createdAt:-1})
+    const categoriesInUse = await News.distinct('category');
+    const categories = await Category.find({'_id':{$in:categoriesInUse}});
     // res.json({articles,categoriesInUse})                            
     // res.json(news);
-    res.render('search.ejs',{searchQuery,articles});
+    res.render('search.ejs',{searchQuery,articles,categories});
 }
 const author = async (req,res)=>{
     const author = await User.findOne({_id:req.params.id});
@@ -62,9 +69,11 @@ const author = async (req,res)=>{
                                 .populate('category',{"name":1,"slug":1})
                                 .populate('author','fullname')
                                 .sort({createdAt:-1})
+    const categoriesInUse = await News.distinct('category');
+    const categories = await Category.find({'_id':{$in:categoriesInUse}});
     // res.json({articles,categoriesInUse})                            
     // res.json(news);
-    res.render('author',{author,articles})
+    res.render('author',{author,articles,categories})
 }
 const addComment = async (req,res)=>{}
 
