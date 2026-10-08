@@ -54,9 +54,10 @@ const singleArticle = async (req,res)=>{
                                 .populate('category',{"name":1,"slug":1})
                                 .populate('author','fullname')
                                 .sort({createdAt:-1})
+    const comments = await Comment.find({article:req.params.id,status:'approved'}).sort('-createdAt')                            
     // res.json({articles,categoriesInUse})                            
-    // res.json(news);
-    res.render('single',{article})
+    // res.json({article,comments});
+    res.render('single',{article,comments})
 }
 const search = async (req,res)=>{
     const searchQuery = req.query.search;
@@ -110,7 +111,16 @@ const author = async (req,res)=>{
     // res.json(news);
     res.render('author',{author,articles,query:req.query})
 }
-const addComment = async (req,res)=>{}
+const addComment = async (req,res)=>{
+    try{
+        const {name,email,content} = req.body;
+        const comment = new Comment({name,email,content,article:req.params.id})
+        await comment.save();
+        res.redirect(`/single/${req.params.id}`)
+    }catch{
+        res.status(500).send('error adding comments')
+    }
+}
 
 export default {
     index,

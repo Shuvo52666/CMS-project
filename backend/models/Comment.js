@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const CommentSchema = new mongoose.Schema({
     article:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'News',
+        ref:'news',
         required:true
     },
     name:{
@@ -24,6 +24,8 @@ const CommentSchema = new mongoose.Schema({
         default:'pending',
         required:true
     }
+},{
+    timestamps:true
 });
 
 const Comment = mongoose.model('Comments',CommentSchema);

@@ -5,7 +5,11 @@
                   <h1 class="admin-heading"><i class="fa fa-comments"></i> Comments Management</h1>
               </div>
               <div class="col-md-12">
-                  <table class="content-table" style="background: white;">
+                <div id="comments" hidden>
+                  <%- JSON.stringify(comments) %>
+                </div>
+                <div id="commentsTable"></div>
+                  <!-- <table class="content-table" style="background: white;">
                       <thead>
                           <th>Article</th>
                           <th>Name</th>
@@ -129,8 +133,126 @@
                         <a class="page-link" href="#">Next</a>
                       </li>
                     </ul>
-                  </nav>
+                  </nav> -->
               </div>
           </div>
       </div>
   </div>
+
+<div class="modal" id="commentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="commentModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="commentModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+   <script src="https://unpkg.com/tabulator-tables@6.5.0/dist/js/tabulator.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" ></script>
+
+  <script>
+
+    // const tableData =<%//-JSON.strinigy(users)%>;
+    const tableData =JSON.parse(document.getElementById("comments").textContent);//so now this convert userdata string to json
+    
+    // console.log(tableData);
+
+      var table = new Tabulator("#commentsTable", {
+       // height:205,  set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+        data:tableData, //assign data to table
+        layout:"fitColumns", //fit columns to width of table (optional)
+        pagination:true,
+        paginationSize:10,
+        paginationSizeSelector:[10, 25, 50, 100],
+        columns:[
+            {title:"S/N", formatter:"rownum",width:70,hozAlign:"center"},
+            {title:"Article", field:"article.title", headerFilter:"input",},
+            {title:"Content", field:"content", headerFilter:"input",}, 
+            {title:"Name", field:"name", headerFilter:"input",},
+            {title:"Date", field:"createdAt", headerFilter:"input",
+              formatter:function(cell,formatterParams,onRendered){
+                var date = new Date(cell.getValue());
+                return date.toDateString().replaceAll(" ","-");
+            }
+            },
+            {title:"Status", field:"status", headerFilter:"input",},
+            {
+              title:"Action",formatter:function(cell, formatterParams, onRendered){ //search custom formatter
+                return `<a onclick="ViewComment('${cell.getData()._id}')" class="btn btn-sm btn-success">View</a>
+                        <a onclick="deleteComment('${cell.getData()._id}')" class="btn btn-sm btn-danger">delete</a>`
+            }
+            }
+        ]
+      });
+
+      async function ViewComment(id){
+        // console.log("hello");
+        const comment = tableData.find(comment=>comment._id === id);
+        const html = `
+              <p><b>message: </b>${comment.content}</p>
+              <select class="form-select" onchange="updateCommentStatus('${comment._id}',this.value)">
+                <option value="pending" ${comment.status === 'pending' ? 'selected' : ''}>pending</option>
+                <option value="approved" ${comment.status === 'approved' ? 'selected' : ''}>approved</option>
+                <option value="rejected" ${comment.status === 'rejected' ? 'selected' : ''}>rejected</option>
+              </select>
+        `;
+
+        const modal = new bootstrap.Modal(document.getElementById('commentModal'));
+        const modalTitle = document.getElementById('commentModalLabel').textContent=`commented by ${comment.name}`;
+        const modalBody = document.getElementById('commentModalBody');
+        modalBody.innerHTML=html;
+        modal.show();
+      }
+
+      async function updateCommentStatus(id,status){
+        await fetch(`/admin/update-comment-status/${id}`,{
+          method:'put',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({status})
+        })
+        .then(response => response.json())
+        .then(data=>{
+          if(data.success){
+            window.location.reload();
+          }
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      }
+
+      async function deleteComment(id){
+        try {
+          if(confirm("are you sure to delete this comment")){
+            const response = await fetch(`/admin/delete-comment/${id}`,{method:'delete'})
+            if(response.ok){
+            window.location.reload();
+          }
+          if(response.status === 400){
+            const data = await response.json();
+            alert(data.message);
+          }
+          }
+        } catch (error) {
+          
+        }
+      }
+
+
+
+
+  </script>
+
+<%- contentFor('tabulatorCSS') %>
+<link href="https://unpkg.com/tabulator-tables@6.5.0/dist/css/tabulator.min.css" rel="stylesheet">

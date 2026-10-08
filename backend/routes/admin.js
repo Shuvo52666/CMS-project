@@ -44,6 +44,9 @@ router.delete('/deleteArticle/:id',isLoggedIn, articleController.deleteArticle);
 
 //comments route
 router.get('/comments',isLoggedIn, commentController.allComments);
+router.put('/update-comment-status/:id',isLoggedIn, commentController.updateCommentStatus);
+router.delete('/delete-comment/:id',isLoggedIn, commentController.deleteComment);
+
 
 //404 route
 
